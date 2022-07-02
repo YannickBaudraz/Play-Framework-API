@@ -25,11 +25,7 @@ class StudentController @Inject() (
 
   def show(id: Int): Action[AnyContent] = Action {
     val student = students.find(_.id == id)
-    student.fold {
-      NotFound("Student not found")
-    } { student =>
-      Ok(toJson(student))
-    }
+    student.fold(NotFound("Student not found"))(student => Ok(toJson(student)))
   }
 
   def create: Action[JsValue] = Action(parse.json) { request =>
@@ -63,5 +59,13 @@ class StudentController @Inject() (
           })
         }
       )
+  }
+
+  def destroy(id: Int): Action[AnyContent] = Action {
+    val student = students.find(_.id == id)
+    student.fold(NotFound("Student not found"))(student => {
+      students -= student
+      Ok("Student deleted")
+    })
   }
 }
