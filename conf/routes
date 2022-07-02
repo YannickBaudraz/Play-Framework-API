@@ -4,7 +4,8 @@
 # ~~~~
 
 # Api routes v1
-GET        /api/v1/students        v1.StudentController.index
+GET        /api/v1/students            v1.StudentController.index
+GET        /api/v1/students/:id        v1.StudentController.show(id: Int)
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file           controllers.Assets.versioned(path="/public", file: Asset)
+GET        /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -19,4 +19,12 @@ class StudentController @Inject() (
   students += StudentResource(2, "janedote@gmail.com", "Jane", "Dow")
 
   def index: Action[AnyContent] = Action(Ok(Json.toJson(students)))
+
+  def show(id: Int): Action[AnyContent] = Action {
+    val student = students.find(_.id == id)
+    student match {
+      case Some(s) => Ok(Json.toJson(s))
+      case None    => NotFound
+    }
+  }
 }
