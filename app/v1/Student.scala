@@ -1,6 +1,6 @@
 package v1
 
 case class Student(
-    id: Int = -1,
+    id: Option[Int],
     email: String
 )

@@ -5,49 +5,61 @@ import play.api.libs.json.{JsValue, Json, OFormat}
 import play.api.mvc._
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class StudentController @Inject() (
     val controllerComponents: ControllerComponents,
     studentService: StudentService
-) extends BaseController {
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
   implicit val studentDTOJson: OFormat[StudentDTO] = Json.format[StudentDTO]
   implicit val studentJson: OFormat[Student] = Json.format[Student]
 
-  def index: Action[AnyContent] = Action(Ok(toJson(studentService.getAll)))
-
-  def show(id: Int): Action[AnyContent] = Action {
-    val student = studentService.getById(id)
-    student.fold(NotFound("Student not found"))(student => Ok(toJson(student)))
+  def index: Action[AnyContent] = Action.async {
+    studentService.list().map { students =>
+      Ok(toJson(students))
+    }
   }
 
-  def create: Action[JsValue] = Action(parse.json) { request =>
+  def show(id: Int): Action[AnyContent] = Action.async {
+    studentService
+      .get(id)
+      .map(student => Ok(toJson(student)))
+      .recover { case e: NoSuchElementException => NotFound(e.getMessage) }
+  }
+
+  def create: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
       .validate[StudentDTO]
       .fold(
-        _ => BadRequest("Invalid student provided"),
-        studentDTO => {
-          studentService.create(studentDTO)
-          Created(toJson(studentDTO))
-        }
+        _ => Future.successful(BadRequest("Invalid student provided")),
+        studentDTO =>
+          studentService
+            .create(studentDTO)
+            .map(student => Created(toJson(student)))
+            .recover { case e: NoSuchElementException => NotFound(e.getMessage) }
       )
   }
 
-  def update(id: Int): Action[JsValue] = Action(parse.json) { request =>
+  def update(id: Int): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
       .validate[StudentDTO]
       .fold(
-        _ => BadRequest("Invalid student provided"),
-        studentDTO => {
-          studentService.update(id, studentDTO)
-          Ok("Student updated")
-        }
+        _ => Future.successful(BadRequest("Invalid student provided")),
+        studentDTO =>
+          studentService
+            .update(id, studentDTO)
+            .map(student => Ok(toJson(student)))
+            .recover { case e: NoSuchElementException => NotFound(e.getMessage) }
       )
   }
 
-  def destroy(id: Int): Action[AnyContent] = Action {
-    studentService.delete(id)
-    Ok("Student deleted")
+  def destroy(id: Int): Action[AnyContent] = Action.async {
+    studentService
+      .delete(id)
+      .map { _ => Ok("Student deleted") }
+      .recover { case e: NoSuchElementException => NotFound(e.getMessage) }
   }
 }
