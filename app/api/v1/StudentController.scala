@@ -9,10 +9,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class StudentController @Inject() (
-    val controllerComponents: ControllerComponents,
+    val cc: ControllerComponents,
     studentService: StudentService
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends AbstractController(cc) {
 
   implicit val studentDTOJson: OFormat[StudentDTO] = Json.format[StudentDTO]
   implicit val studentJson: OFormat[Student] = Json.format[Student]
