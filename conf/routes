@@ -4,7 +4,7 @@
 # ~~~~
 
 # Simple ping with a timestamp
-GET        /api/ping               api.PingController.ping
+GET        /api/info               api.InformationController.info
 
 # Api routes v1
 ->         /api/v1/students        api.v1.controller.StudentController
