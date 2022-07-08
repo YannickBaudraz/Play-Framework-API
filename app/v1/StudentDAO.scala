@@ -13,9 +13,13 @@ class StudentDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvid
   private val Students = TableQuery[StudentsTable]
 
   def all(): Future[Seq[Student]] = db.run(Students.sortBy(_.id).result)
+
   def find(id: Int): Future[Option[Student]] = db.run(Students.filter(_.id === id).result.headOption)
+
   def create(student: Student): Future[Int] = db.run(Students returning Students.map(_.id) += student)
+
   def update(student: Student): Future[Student] =
     db.run(Students.filter(_.id === student.id).update(student)).map(_ => student)
+
   def delete(id: Int): Future[Int] = db.run(Students.filter(_.id === id).delete)
 }
