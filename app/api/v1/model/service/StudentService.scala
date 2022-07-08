@@ -1,4 +1,8 @@
-package api.v1
+package api.v1.model.service
+
+import api.v1.model.Student
+import api.v1.model.database.dao.StudentDAO
+import api.v1.model.dto.StudentDTO
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

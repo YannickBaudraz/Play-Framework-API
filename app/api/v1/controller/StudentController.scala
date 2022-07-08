@@ -1,5 +1,8 @@
-package api.v1
+package api.v1.controller
 
+import api.v1.model.dto.StudentDTO
+import api.v1.model.Student
+import api.v1.model.service.StudentService
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json, OFormat}
 import play.api.mvc._

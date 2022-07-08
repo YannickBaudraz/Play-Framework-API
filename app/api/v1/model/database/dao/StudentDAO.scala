@@ -1,5 +1,7 @@
-package api.v1
+package api.v1.model.database.dao
 
+import api.v1.model.Student
+import api.v1.model.database.entity.StudentsEntity
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.H2Profile.api._
 import slick.jdbc.JdbcProfile
@@ -10,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class StudentDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvider)(implicit val ec: ExecutionContext)
     extends HasDatabaseConfigProvider[JdbcProfile] {
 
-  private val Students = TableQuery[StudentsTable]
+  private val Students = TableQuery[StudentsEntity]
 
   def all(): Future[Seq[Student]] = db.run(Students.sortBy(_.id).result)
 
