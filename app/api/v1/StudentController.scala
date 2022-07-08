@@ -27,7 +27,6 @@ class StudentController @Inject() (
     studentService
       .get(id)
       .map(student => Ok(toJson(student)))
-      .recover { case e: NoSuchElementException => NotFound(e.getMessage) }
   }
 
   def create: Action[JsValue] = Action.async(parse.json) { implicit request =>
@@ -39,7 +38,6 @@ class StudentController @Inject() (
           studentService
             .create(studentDTO)
             .map(student => Created(toJson(student)))
-            .recover { case e: NoSuchElementException => NotFound(e.getMessage) }
       )
   }
 
@@ -52,7 +50,6 @@ class StudentController @Inject() (
           studentService
             .update(id, studentDTO)
             .map(student => Ok(toJson(student)))
-            .recover { case e: NoSuchElementException => NotFound(e.getMessage) }
       )
   }
 
@@ -60,6 +57,5 @@ class StudentController @Inject() (
     studentService
       .delete(id)
       .map { _ => Ok("Student deleted") }
-      .recover { case e: NoSuchElementException => NotFound(e.getMessage) }
   }
 }
