@@ -1,6 +1,5 @@
 package api
 
-import api.v1.StudentRouter
 import play.api.libs.json.Json
 import play.api.mvc._
 
@@ -8,7 +7,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class PingController @Inject() (val cc: ControllerComponents, studentRouter: StudentRouter)(implicit
+class PingController @Inject() (val cc: ControllerComponents)(implicit
     ec: ExecutionContext
 ) extends AbstractController(cc) {
 
