@@ -1,4 +1,4 @@
-package v1
+package api.v1
 
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json, OFormat}

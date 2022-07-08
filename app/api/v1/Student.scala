@@ -1,4 +1,4 @@
-package v1
+package api.v1
 
 case class Student(
     id: Option[Int],

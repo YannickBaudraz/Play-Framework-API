@@ -1,4 +1,4 @@
-package v1
+package api.v1
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

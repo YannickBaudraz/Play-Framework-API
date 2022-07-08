@@ -1,4 +1,4 @@
-package v1
+package api.v1
 
 import slick.jdbc.H2Profile.api._
 import slick.lifted.ProvenShape

@@ -4,7 +4,8 @@
 # ~~~~
 
 # Api routes v1
-->         /api/v1/students        v1.StudentRouter
+->         /api/v1/students        api.v1.StudentRouter
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET        /assets/*file           controllers.Assets.versioned(path="/public", file: Asset)
