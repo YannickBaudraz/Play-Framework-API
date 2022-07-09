@@ -1,5 +1,3 @@
-# Tasks schema
-
 # --- !Ups
 
 CREATE TABLE students

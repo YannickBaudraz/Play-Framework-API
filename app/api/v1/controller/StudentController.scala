@@ -1,7 +1,7 @@
 package api.v1.controller
 
-import api.v1.model.dto.StudentDTO
-import api.v1.model.Student
+import api.v1.model.dto.StudentReqDTO
+import api.v1.model.{School, Student, StudentWithSchool}
 import api.v1.model.service.StudentService
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json, OFormat}
@@ -21,8 +21,10 @@ class StudentController @Inject() (
     extends AbstractController(cc)
     with SimpleRouter {
 
-  implicit val studentDTOJson: OFormat[StudentDTO] = Json.format[StudentDTO]
-  implicit val studentJson: OFormat[Student] = Json.format[Student]
+  implicit val studentReqDTOFormat: OFormat[StudentReqDTO] = Json.format[StudentReqDTO]
+  implicit val studentFormat: OFormat[Student] = Json.format[Student]
+  implicit val schoolFormat: OFormat[School] = Json.format[School]
+  implicit val studentWithSchoolFormat: OFormat[StudentWithSchool] = Json.format[StudentWithSchool]
 
   override def routes: Routes = {
     case GET(p"/")              => index
@@ -52,12 +54,13 @@ class StudentController @Inject() (
   }
 
   /** POST /api/v1/students<br>
-    * The body of the request should be a JSON object of type [[StudentDTO]].
+    * The body of the request should be a JSON object of type [[StudentReqDTO]].
+ *
     * @return The created student.
     */
   def create: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
-      .validate[StudentDTO]
+      .validate[StudentReqDTO]
       .fold(
         _ => Future.successful(BadRequest("Invalid student provided")),
         studentDTO =>
@@ -68,13 +71,14 @@ class StudentController @Inject() (
   }
 
   /** PUT /api/v1/students/:id<br>
-    * The body of the request should be a JSON object of type [[StudentDTO]].
+    * The body of the request should be a JSON object of type [[StudentReqDTO]].
+ *
     * @param id The id of the student to update.
     * @return The updated student.
     */
   def update(id: Int): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
-      .validate[StudentDTO]
+      .validate[StudentReqDTO]
       .fold(
         _ => Future.successful(BadRequest("Invalid student provided")),
         studentDTO =>

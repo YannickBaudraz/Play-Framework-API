@@ -1,30 +1,21 @@
 package api.v1.model.service
 
-import api.v1.model.Student
+import api.v1.model.{School, Student, StudentWithSchool}
 import api.v1.model.database.dao.StudentDAO
-import api.v1.model.dto.StudentDTO
+import api.v1.model.dto.StudentReqDTO
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class StudentService @Inject() (dao: StudentDAO)(implicit ec: ExecutionContext) {
-
-  type FutureIntOrStudent = Either[Future[Int], Future[Student]]
+class StudentService @Inject() (dao: StudentDAO, converter: ConverterService)(implicit ec: ExecutionContext) {
 
   def list(): Future[Seq[Student]] = dao.all()
 
-  def get(id: Int): Future[Student] = {
-    dao.find(id).map {
-      case Some(student) => student
-      case None          => throw new NoSuchElementException(s"Student with id $id not found")
-    }
-  }
+  def get(id: Int): Future[Option[StudentWithSchool]] = dao.findWithSchool(id)
 
-  def create(dto: StudentDTO): Future[Student] = dao.create(toStudent(dto, None)).map(id => toStudent(dto, Some(id)))
+  def create(dto: StudentReqDTO): Future[Student] = dao.create(converter.toStudent(dto, None))
 
-  def update(id: Int, dto: StudentDTO): Future[Student] = get(id).flatMap(_ => dao.update(toStudent(dto, Some(id))))
+  def update(id: Int, dto: StudentReqDTO): Future[Student] = dao.update(converter.toStudent(dto, Some(id)))
 
-  def delete(id: Int): Future[Int] = get(id).flatMap(_ => dao.delete(id))
-
-  private def toStudent(dto: StudentDTO, id: Option[Int]) = Student(id, dto.email)
+  def delete(id: Int): Future[Int] = dao.delete(id)
 }
