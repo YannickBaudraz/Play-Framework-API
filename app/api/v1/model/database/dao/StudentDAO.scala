@@ -21,24 +21,27 @@ class StudentDAO @Inject() (
   def all(): Future[Seq[Student]] =
     db.run(Students.sortBy(_.id).result)
 
-  def find(id: Int): Future[Option[Student]] =
+  def find(id: Int): Future[Student] =
     db.run(Students.filter(_.id === id).result.headOption)
       .map {
-        case student => student
-        case None    => throw handleNoElement(id)
+        case Some(student) => student
+        case None => handleNoElement(id)
       }
 
-  def findWithSchool(id: Int): Future[Option[StudentWithSchool]] =
+  def findWithSchool(id: Int): Future[StudentWithSchool] =
     db.run(Students.filter(_.id === id).withSchool.result.headOption)
-      .map(converter.toStudentWithSchool)
+      .map {
+        case Some(tuple2) => converter.toStudentWithSchool(tuple2)
+        case None => handleNoElement(id)
+      }
 
   def create(student: Student): Future[Student] =
     db.run(Students returning Students.map(_.id) += student)
-      .flatMap(id => find(id).map(_.get))
+      .flatMap(id => find(id))
 
   def update(student: Student): Future[Student] =
     db.run(Students.filter(_.id === student.id.get).update(student))
-      .flatMap(_ => find(student.id.get).map(_.get))
+      .flatMap(_ => find(student.id.get))
 
   def delete(id: Int): Future[Nothing] =
     db.run(Students.filter(_.id === id).delete)

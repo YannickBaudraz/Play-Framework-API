@@ -10,7 +10,7 @@ class StudentEntity(tag: Tag) extends Table[Student](tag, "students") {
   type SchoolFK = ForeignKeyQuery[SchoolEntity, School]
 
   def id: Rep[Int] = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def email: Rep[String] = column[String]("email")
+  def email: Rep[String] = column[String]("email", O.Unique)
   def schoolId: Rep[Option[Int]] = column[Option[Int]]("school_id")
 
   def school: SchoolFK = foreignKey("school_fk", schoolId, TableQuery[SchoolEntity])(_.id, Cascade, SetNull)
