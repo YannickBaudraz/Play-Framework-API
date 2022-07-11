@@ -1,7 +1,6 @@
-package api.v1.model.database.dao
+package api.v1.database.dao
 
-import api.v1.model.database.entity.{SchoolEntity, StudentEntity}
-import api.v1.model.service.ConverterService
+import api.v1.database.entity.{SchoolEntity, StudentEntity}
 import api.v1.model.{School, Student, StudentWithSchool}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.H2Profile.api._
@@ -11,8 +10,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class StudentDAO @Inject() (
-    protected val dbConfigProvider: DatabaseConfigProvider,
-    converter: ConverterService
+    protected val dbConfigProvider: DatabaseConfigProvider
 )(implicit val ec: ExecutionContext)
     extends HasDatabaseConfigProvider[JdbcProfile] {
 
@@ -45,7 +43,7 @@ class StudentDAO @Inject() (
     case Some(student) =>
       student match {
         case student: Student                 => student.asInstanceOf[B]
-        case tuple: (Student, Option[School]) => converter.toStudentWithSchool(tuple).asInstanceOf[B]
+        case tuple: (Student, Option[School]) => toStudentWithSchool(tuple).asInstanceOf[B]
       }
     case None => handleNoElement(id)
   }
@@ -53,6 +51,9 @@ class StudentDAO @Inject() (
   private def handleNoElement(id: Int) = {
     throw new NoSuchElementException(s"Student with id $id not found")
   }
+
+  private def toStudentWithSchool(tuple: (Student, Option[School])) =
+    StudentWithSchool(tuple._1.id, tuple._1.email, tuple._2)
 
   implicit class StudentExtensions[C[_]](q: Query[StudentEntity, Student, C]) {
     type WithSchoolQuery = Query[(StudentEntity, Rep[Option[SchoolEntity]]), (Student, Option[School]), C]

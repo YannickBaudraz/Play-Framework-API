@@ -1,8 +1,7 @@
 package api.v1.controller
 
-import api.v1.model.dto.StudentReqDTO
-import api.v1.model.service.StudentService
 import api.v1.model.{School, Student, StudentWithSchool}
+import api.v1.service.StudentService
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json, OFormat}
 import play.api.mvc._
@@ -21,7 +20,6 @@ class StudentController @Inject() (
     extends AbstractController(cc)
     with SimpleRouter {
 
-  implicit val studentReqDTOFormat: OFormat[StudentReqDTO] = Json.format[StudentReqDTO]
   implicit val studentFormat: OFormat[Student] = Json.format[Student]
   implicit val schoolFormat: OFormat[School] = Json.format[School]
   implicit val studentWithSchoolFormat: OFormat[StudentWithSchool] = Json.format[StudentWithSchool]
@@ -54,36 +52,36 @@ class StudentController @Inject() (
   }
 
   /** POST /api/v1/students<br>
-    * The body of the request should be a JSON object of type [[StudentReqDTO]].
+    * The body of the request should be a JSON object of type [[Student]].
     *
     * @return The created student.
     */
   def create: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
-      .validate[StudentReqDTO]
+      .validate[Student]
       .fold(
         _ => Future.successful(BadRequest("Invalid student provided")),
-        studentDTO =>
+        student =>
           studentService
-            .create(studentDTO)
+            .create(student)
             .map(student => Created(toJson(student)))
       )
   }
 
   /** PUT /api/v1/students/:id<br>
-    * The body of the request should be a JSON object of type [[StudentReqDTO]].
+    * The body of the request should be a JSON object of type [[Student]].
     *
     * @param id The id of the student to update.
     * @return The updated student.
     */
   def update(id: Int): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
-      .validate[StudentReqDTO]
+      .validate[Student]
       .fold(
         _ => Future.successful(BadRequest("Invalid student provided")),
-        studentDTO =>
+        student =>
           studentService
-            .update(id, studentDTO)
+            .update(student.copy(id = Some(id)))
             .map(student => Ok(toJson(student)))
       )
   }

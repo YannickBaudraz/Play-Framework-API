@@ -1,4 +1,4 @@
-package api.v1.model.database.entity
+package api.v1.database.entity
 
 import api.v1.model.School
 import slick.jdbc.H2Profile.api._
