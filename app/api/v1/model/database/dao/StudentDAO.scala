@@ -30,16 +30,16 @@ class StudentDAO @Inject() (
       .map(withErrorIfNoElement[StudentWithSchool](id))
 
   def create(student: Student): Future[Student] =
-    db.run(Students returning Students.map(_.id) += student)
+    db.run((Students returning Students.map(_.id)) += student)
       .flatMap(id => find(id))
 
   def update(student: Student): Future[Student] =
-    db.run(Students.filter(_.id === student.id.get).update(student))
+    db.run(Students.filter(_.id === student.id.get) update student)
       .flatMap(_ => find(student.id.get))
 
-  def delete(id: Int): Future[Nothing] =
+  def delete(id: Int): Future[Unit] =
     db.run(Students.filter(_.id === id).delete)
-      .map { case 0 => handleNoElement(id) }
+      .map(rowsAffected => if (rowsAffected == 0) handleNoElement(id))
 
   private def withErrorIfNoElement[B](id: Int): Option[Any] => B = {
     case Some(student) =>
@@ -56,6 +56,6 @@ class StudentDAO @Inject() (
 
   implicit class StudentExtensions[C[_]](q: Query[StudentEntity, Student, C]) {
     type WithSchoolQuery = Query[(StudentEntity, Rep[Option[SchoolEntity]]), (Student, Option[School]), C]
-    def withSchool: WithSchoolQuery = q.joinLeft(TableQuery[SchoolEntity]).on(_.schoolId === _.id)
+    def withSchool: WithSchoolQuery = q joinLeft TableQuery[SchoolEntity] on (_.schoolId === _.id)
   }
 }

@@ -17,5 +17,5 @@ class StudentService @Inject() (dao: StudentDAO, converter: ConverterService)(im
 
   def update(id: Int, dto: StudentReqDTO): Future[Student] = dao.update(converter.toStudent(dto, Some(id)))
 
-  def delete(id: Int): Future[Int] = dao.delete(id)
+  def delete(id: Int): Future[Unit] = dao.delete(id)
 }

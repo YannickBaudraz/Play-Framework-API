@@ -1,8 +1,8 @@
 package api.v1.controller
 
 import api.v1.model.dto.StudentReqDTO
-import api.v1.model.{School, Student, StudentWithSchool}
 import api.v1.model.service.StudentService
+import api.v1.model.{School, Student, StudentWithSchool}
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.{JsValue, Json, OFormat}
 import play.api.mvc._
@@ -55,7 +55,7 @@ class StudentController @Inject() (
 
   /** POST /api/v1/students<br>
     * The body of the request should be a JSON object of type [[StudentReqDTO]].
- *
+    *
     * @return The created student.
     */
   def create: Action[JsValue] = Action.async(parse.json) { implicit request =>
@@ -72,7 +72,7 @@ class StudentController @Inject() (
 
   /** PUT /api/v1/students/:id<br>
     * The body of the request should be a JSON object of type [[StudentReqDTO]].
- *
+    *
     * @param id The id of the student to update.
     * @return The updated student.
     */
@@ -95,7 +95,7 @@ class StudentController @Inject() (
   def destroy(id: Int): Action[AnyContent] = Action.async {
     studentService
       .delete(id)
-      .map { _ => Ok("Student deleted") }
+      .map(_ => Ok("Student deleted"))
   }
 }
 
