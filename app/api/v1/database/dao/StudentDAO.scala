@@ -29,7 +29,7 @@ class StudentDAO @Inject() (
 
   def create(student: Student): Future[Student] =
     db.run((Students returning Students.map(_.id)) += student)
-      .flatMap(id => find(id))
+      .flatMap(find)
 
   def update(student: Student): Future[Student] =
     db.run(Students.filter(_.id === student.id.get) update student)

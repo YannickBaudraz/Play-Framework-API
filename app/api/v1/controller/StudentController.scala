@@ -36,9 +36,9 @@ class StudentController @Inject() (
     * @return A list of students.
     */
   def index: Action[AnyContent] = Action.async {
-    studentService.list().map { students =>
-      Ok(toJson(students))
-    }
+    studentService
+      .list()
+      .map(students => Ok(toJson(students)))
   }
 
   /** GET /api/v1/students/:id
@@ -72,7 +72,7 @@ class StudentController @Inject() (
     * The body of the request should be a JSON object of type [[Student]].
     *
     * @param id The id of the student to update.
-    * @return The updated student.
+    * @return The updated student, or a 404 if not found.
     */
   def update(id: Int): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
@@ -88,12 +88,12 @@ class StudentController @Inject() (
 
   /** DELETE /api/v1/students/:id
     * @param id The id of the student to delete.
-    * @return An OK response if the student was deleted.
+    * @return A status code of 205 if the student was deleted, or a 404 if not found.
     */
   def destroy(id: Int): Action[AnyContent] = Action.async {
     studentService
       .delete(id)
-      .map(_ => Ok("Student deleted"))
+      .map(_ => ResetContent)
   }
 }
 
