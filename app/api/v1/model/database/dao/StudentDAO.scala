@@ -23,17 +23,11 @@ class StudentDAO @Inject() (
 
   def find(id: Int): Future[Student] =
     db.run(Students.filter(_.id === id).result.headOption)
-      .map {
-        case Some(student) => student
-        case None => handleNoElement(id)
-      }
+      .map(withErrorIfNoElement[Student](id))
 
   def findWithSchool(id: Int): Future[StudentWithSchool] =
     db.run(Students.filter(_.id === id).withSchool.result.headOption)
-      .map {
-        case Some(tuple2) => converter.toStudentWithSchool(tuple2)
-        case None => handleNoElement(id)
-      }
+      .map(withErrorIfNoElement[StudentWithSchool](id))
 
   def create(student: Student): Future[Student] =
     db.run(Students returning Students.map(_.id) += student)
@@ -46,6 +40,15 @@ class StudentDAO @Inject() (
   def delete(id: Int): Future[Nothing] =
     db.run(Students.filter(_.id === id).delete)
       .map { case 0 => handleNoElement(id) }
+
+  private def withErrorIfNoElement[B](id: Int): Option[Any] => B = {
+    case Some(student) =>
+      student match {
+        case student: Student                 => student.asInstanceOf[B]
+        case tuple: (Student, Option[School]) => converter.toStudentWithSchool(tuple).asInstanceOf[B]
+      }
+    case None => handleNoElement(id)
+  }
 
   private def handleNoElement(id: Int) = {
     throw new NoSuchElementException(s"Student with id $id not found")
