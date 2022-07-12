@@ -12,5 +12,5 @@ class SchoolEntity(tag: Tag) extends Table[School](tag, "schools") {
   def email: Rep[Option[String]] = column[Option[String]]("email", O.Unique)
   def website: Rep[Option[String]] = column[Option[String]]("website", O.Unique)
 
-  def * : ProvenShape[School] = (id.?, name, phone, email, website) <> (School.tupled, School.unapply)
+  def * : ProvenShape[School] = (id.?, name, phone, email, website) <> ((School.apply _).tupled, School.unapply)
 }

@@ -1,12 +1,11 @@
 package api.v1.controller
 
-import api.v1.model.{BaseModel, School, Student, StudentWithSchool}
+import api.v1.model.{BaseModel, BaseModelCompanion}
 import api.v1.service.Service
-import play.api.libs.json.Format._
 import play.api.libs.json.Json.toJson
 import play.api.libs.json.OFormat._
 import play.api.libs.json._
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import play.api.mvc._
 import play.api.routing.Router.Routes
 import play.api.routing.SimpleRouter
 import play.api.routing.sird._
@@ -16,14 +15,14 @@ import scala.concurrent._
 import scala.reflect.runtime.universe._
 
 @Singleton
-abstract class ApiController[M <: BaseModel] @Inject() (
+abstract class ApiController[Model <: BaseModel] @Inject() (
     cc: ControllerComponents,
     service: Service
-)(implicit ec: ExecutionContext, tag: TypeTag[M])
+)(implicit ec: ExecutionContext, modelTypeTag: TypeTag[Model])
     extends AbstractController(cc)
     with SimpleRouter {
 
-  private val modelName = tag.tpe.typeSymbol.name.toString
+  private val modelName = modelTypeTag.tpe.typeSymbol.name.toString
 
   override def routes: Routes = {
     case GET(p"/")              => index
@@ -33,57 +32,75 @@ abstract class ApiController[M <: BaseModel] @Inject() (
     case DELETE(p"/${int(id)}") => destroy(id)
   }
 
+  /** GET /
+    * @return JSON array of all models
+    */
   def index: Action[AnyContent] = Action.async {
     service
       .list()
-      .map(model => Ok(toJson(model)))
+      .map(models => Ok(toJson(models)))
   }
 
+  /** GET /:id
+    * @param id The id of the model to show
+    * @return JSON of the model in a 200 response
+    */
   def show(id: Int): Action[AnyContent] = Action.async {
     service
       .get(id)
       .map(model => Ok(toJson(model)))
   }
 
+  /** POST /
+    * The body of the request should be a JSON object of the model to create.
+    * @return JSON of the created model in a 201 response
+    */
   def create: Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
-      .validate[M]
+      .validate[Model]
       .fold(
         _ => Future.successful(BadRequest(s"Invalid $modelName provided")),
         model => {
           service
             .create(model)
-            .map(school => Created(toJson(school)))
+            .map(model => Created(toJson(model)))
         }
       )
   }
 
+  /** PUT /:id
+    * The body of the request should be a JSON object of the model to update.
+    * @param id The id of the model to update
+    * @return JSON of the updated model in a 200 response
+    */
   def update(id: Int): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body
-      .validate[M]
+      .validate[Model]
       .fold(
         _ => Future.successful(BadRequest(s"Invalid $modelName provided")),
         model => {
           service
             .update(model.copy(Some(id)))
-            .map(school => Ok(toJson(school)))
+            .map(model => Ok(toJson(model)))
         }
       )
   }
 
+  /** DELETE /:id
+    * @param id The id of the model to delete
+    * @return A 204 response
+    */
   def destroy(id: Int): Action[AnyContent] = Action.async {
     service
       .delete(id)
-      .map(_ => Ok)
+      .map(_ => NoContent)
   }
 
-  implicit def format: OFormat[M] = {
-    val modelFormat = tag.tpe match {
-      case t if t =:= typeOf[Student] => BaseModel.formatStudent
-      case t if t =:= typeOf[School] => BaseModel.formatSchool
-      case t if t =:= typeOf[StudentWithSchool] => BaseModel.formatStudentWithSchool
-      case _ => throw new IllegalArgumentException(s"Invalid model type: ${tag.tpe}")
-    }
-    modelFormat.asInstanceOf[OFormat[M]]
+  implicit private def format: OFormat[Model] = {
+    val companion = modelTypeTag.tpe.typeSymbol.companion.asModule
+    val moduleMirror = runtimeMirror(getClass.getClassLoader).reflectModule(companion)
+    val instance = moduleMirror.instance.asInstanceOf[BaseModelCompanion[Model]]
+
+    instance.format
   }
 }

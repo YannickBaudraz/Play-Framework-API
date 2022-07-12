@@ -15,5 +15,5 @@ class StudentEntity(tag: Tag) extends Table[Student](tag, "students") {
 
   def school: SchoolFK = foreignKey("school_fk", schoolId, TableQuery[SchoolEntity])(_.id, Cascade, SetNull)
 
-  def * : ProvenShape[Student] = (id.?, email, schoolId) <> (Student.tupled, Student.unapply)
+  def * : ProvenShape[Student] = (id.?, email, schoolId) <> ((Student.apply _).tupled, Student.unapply)
 }
