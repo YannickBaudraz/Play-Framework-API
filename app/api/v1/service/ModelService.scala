@@ -4,7 +4,7 @@ import api.v1.model.BaseModel
 
 import scala.concurrent.Future
 
-trait Service {
+trait ModelService {
   def list(): Future[Seq[BaseModel]]
   def get(id: Int): Future[BaseModel]
   def create(model: BaseModel): Future[BaseModel]

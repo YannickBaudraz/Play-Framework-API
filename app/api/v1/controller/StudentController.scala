@@ -2,16 +2,17 @@ package api.v1.controller
 
 import api.v1.model.Student
 import api.v1.service.StudentService
+import api.v1.validation.StudentValidation
 import play.api.mvc._
 import play.api.routing.SimpleRouter
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-@Singleton
 class StudentController @Inject() (
-    val cc: ControllerComponents,
-    studentService: StudentService
+    cc: ControllerComponents,
+    validation: StudentValidation,
+    service: StudentService
 )(implicit ec: ExecutionContext)
-    extends ApiController[Student](cc, studentService)
+    extends ApiController[Student](cc, validation, service)
     with SimpleRouter {}

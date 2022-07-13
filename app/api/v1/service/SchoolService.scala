@@ -6,7 +6,7 @@ import api.v1.model.{BaseModel, School}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SchoolService @Inject() (dao: SchoolDAO)(implicit ec: ExecutionContext) extends Service {
+class SchoolService @Inject() (dao: SchoolDAO)(implicit ec: ExecutionContext) extends ModelService {
 
   def list(): Future[Seq[School]] =
     dao.all()

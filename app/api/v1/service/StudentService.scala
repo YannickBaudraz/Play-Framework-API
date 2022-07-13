@@ -6,7 +6,7 @@ import api.v1.model.{BaseModel, Student, StudentWithSchool}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class StudentService @Inject() (dao: StudentDAO)(implicit ec: ExecutionContext) extends Service {
+class StudentService @Inject() (dao: StudentDAO)(implicit ec: ExecutionContext) extends ModelService {
 
   def list(): Future[Seq[Student]] =
     dao.all()
@@ -14,10 +14,10 @@ class StudentService @Inject() (dao: StudentDAO)(implicit ec: ExecutionContext) 
   def get(id: Int): Future[StudentWithSchool] =
     dao.findWithSchool(id)
 
-  def create(student: BaseModel): Future[BaseModel] =
+  def create(student: BaseModel): Future[Student] =
     dao.create(student.asInstanceOf[Student])
 
-  def update(student: BaseModel): Future[BaseModel] =
+  def update(student: BaseModel): Future[Student] =
     dao.update(student.asInstanceOf[Student])
 
   def delete(id: Int): Future[Unit] =

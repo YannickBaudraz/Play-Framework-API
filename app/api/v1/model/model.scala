@@ -2,11 +2,13 @@ package api.v1.model
 
 import play.api.libs.json._
 
-sealed abstract class BaseModel(
-    id: Option[Int] = None
-) extends Product
-    with Serializable {
-  def copy(id: Option[Int] = id): BaseModel = this.copy(id)
+sealed abstract class BaseModel extends Product with Serializable with Cloneable {
+  var id: Option[Int]
+  def copy(id: Option[Int] = id): BaseModel = {
+    val model = clone.asInstanceOf[BaseModel]
+    model.id = id
+    model
+  }
 }
 trait BaseModelCompanion[A <: BaseModel] {
   implicit val format: OFormat[A]
@@ -16,30 +18,30 @@ object BaseModel extends BaseModelCompanion[BaseModel] {
 }
 
 case class Student(
-    id: Option[Int] = None,
-    email: String,
-    schoolId: Option[Int] = None
+    var id: Option[Int],
+    var email: String,
+    var schoolId: Option[Int] = None
 ) extends BaseModel
-case object Student extends BaseModelCompanion[Student] {
+object Student extends BaseModelCompanion[Student] {
   implicit val format: OFormat[Student] = Json.format[Student]
 }
 
 case class School(
-    id: Option[Int] = None,
-    name: String,
-    phone: Option[String] = None,
-    email: Option[String] = None,
-    website: Option[String] = None
+    var id: Option[Int] = None,
+    var name: String,
+    var phone: Option[String] = None,
+    var email: Option[String] = None,
+    var website: Option[String] = None
 ) extends BaseModel
-case object School extends BaseModelCompanion[School] {
+object School extends BaseModelCompanion[School] {
   implicit val format: OFormat[School] = Json.format[School]
 }
 
 case class StudentWithSchool(
-    id: Option[Int] = None,
-    email: String,
-    school: Option[School] = None
+    var id: Option[Int] = None,
+    var email: String,
+    var school: Option[School] = None
 ) extends BaseModel
-case object StudentWithSchool extends BaseModelCompanion[StudentWithSchool] {
+object StudentWithSchool extends BaseModelCompanion[StudentWithSchool] {
   implicit val format: OFormat[StudentWithSchool] = Json.format[StudentWithSchool]
 }
