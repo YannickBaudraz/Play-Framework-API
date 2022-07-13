@@ -17,9 +17,9 @@ import scala.concurrent._
 import scala.reflect.runtime.universe._
 
 @Singleton abstract class ApiController[Model <: BaseModel] @Inject() (
-                                                                        cc: ControllerComponents,
-                                                                        validation: ModelValidation[Model],
-                                                                        service: ModelService
+    cc: ControllerComponents,
+    validation: ModelValidation[Model],
+    service: ModelService
 )(implicit
     ec: ExecutionContext,
     modelTypeTag: TypeTag[Model]
