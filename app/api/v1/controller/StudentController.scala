@@ -14,3 +14,4 @@ class StudentController @Inject() (
     service: StudentService
 )(implicit ec: ExecutionContext)
     extends ApiController[Student](cc, validation, service) {}
+object StudentController

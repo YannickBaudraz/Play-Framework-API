@@ -1,0 +1,13 @@
+{
+  "application": {
+    "name": "Scala Play Framework Api Demo",
+    "version": "1.0.0-SNAPSHOT",
+    "author": {
+      "name": "Yannick Baudraz",
+      "email": "yannickbaudrazdev@gmail.com"
+    }
+  },
+  "api": {
+    "version": "v1"
+  }
+}
